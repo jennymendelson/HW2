@@ -39,7 +39,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
                         if (task.isSuccessful()) {
                             Messages.clear();
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Message c = new Message(document.get("Avatar").toString(),document.get("Name").toString(),document.get("Text").toString(),document.get("ID").toString());
+                                Message c = new Message(document.get("Avatar").toString(), document.get("Name").toString(), document.get("Text").toString(), document.get("ID").toString());
                                 Messages.add(c);
                             }
                             notifyDataSetChanged();
@@ -51,7 +51,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 Messages.clear();
                 for (QueryDocumentSnapshot document : value) {
-                    Message c = new Message(document.get("Avatar").toString(),document.get("Name").toString(),document.get("Text").toString(),document.get("ID").toString());
+                    Message c = new Message(document.get("Avatar").toString(), document.get("Name").toString(), document.get("Text").toString(), document.get("ID").toString());
                     Messages.add(c);
                 }
                 notifyDataSetChanged();
@@ -62,7 +62,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.message,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.message, parent, false);
         MessageViewHolder viewHolder = new MessageViewHolder(view);
         return viewHolder;
     }
@@ -76,14 +76,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
         holder.Card.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(),MessageActivity.class);
-                //intent.putExtra("message",message);
+                Intent intent = new Intent(v.getContext(), MessageActivity.class);
+                intent.putExtra("message", message); // Un-commented this line
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         (Activity) v.getContext(),
                         holder.Card,
                         "cardTransition"
                 );
-                v.getContext().startActivity(intent,options.toBundle());
+                v.getContext().startActivity(intent, options.toBundle());
             }
         });
     }
@@ -94,7 +94,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
     }
 
     public void DeleteMessage(int pos) {
-        Message m = Messages.get(-1);
-        db.collection("Messages").document(m.ID).delete();
+        if (pos >= 0 && pos < Messages.size()) {
+            Message m = Messages.get(pos);
+            db.collection("Messages").document(m.ID).delete();
+            Messages.remove(pos);
+            notifyItemRemoved(pos);
+        }
     }
 }
